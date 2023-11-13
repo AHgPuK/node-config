@@ -322,7 +322,7 @@ var definitions = {
   hjson: Parser.hjsonParser,
   iced: Parser.icedParser,
   js: Parser.jsParser,
-  json: Parser.jsonParser,
+  json: Parser.json5Parser,
   json5: Parser.json5Parser,
   properties: Parser.propertiesParser,
   toml: Parser.tomlParser,
