@@ -1,23 +1,12 @@
 var requireUncached = require('./_utils/requireUncached');
 
-// Dependencies
 var vows = require('vows'),
-    assert = require('assert'),
-    FileSystem = require('fs');
+    assert = require('assert')
 
-/**
- * <p>Unit tests for the node-config library.  To run type:</p>
- * <pre>npm test</pre>
- * <p>Or, in a project that uses node-config:</p>
- * <pre>npm test config</pre>
- *
- * @class ConfigTest
- */
-
-var CONFIG, override;
-vows.describe('Test suite for node-config TypeScript support with module.exports')
+var CONFIG;
+vows.describe('Test suite for node-config transpiled JS files')
 .addBatch({
-  'Library initialization with TypeScript config files': {
+  'Library initialization with transpiled JavaScript ES6 config files': {
     topic : function () {
 
       // Clear after previous tests
@@ -26,7 +15,7 @@ vows.describe('Test suite for node-config TypeScript support with module.exports
       process.env.NODE_CONFIG = '';
 
       // Change the configuration directory for testing
-      process.env.NODE_CONFIG_DIR = __dirname + '/x-config-ts-module-exports';
+      process.env.NODE_CONFIG_DIR = __dirname + '/x-config-js-transpiled';
 
       // Disable after previous tests
       process.env.NODE_CONFIG_STRICT_MODE = false;
@@ -43,8 +32,8 @@ vows.describe('Test suite for node-config TypeScript support with module.exports
 })
 .addBatch({
   'Configuration file Tests': {
-    'Loading configurations from a TypeScript file is correct': function() {
-      assert.equal(CONFIG.siteTitle, 'New Instance!');
+    'Loading configurations from a transpiled JS file is correct': function() {
+      assert.equal(CONFIG.title, 'Hello config!');
     }
   },
 })

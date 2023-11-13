@@ -1,9 +1,4 @@
 var requireUncached = require('./_utils/requireUncached');
-var isSupportedVersion = require('./_utils/isSupportedVersion');
-
-if(!isSupportedVersion('7.6.0'))  {
-  return false;
-}
 
 var resolveAsyncConfigs = require('../async').resolveAsyncConfigs;
 
@@ -12,7 +7,7 @@ var resolveAsyncConfigs = require('../async').resolveAsyncConfigs;
 // Change the configuration directory for testing
 process.env.NODE_CONFIG_DIR = __dirname + '/15-config';
 
-// Hardcode $NODE_ENV=test for testing
+// Hard-code $NODE_ENV=test for testing
 process.env.NODE_ENV='test';
 
 // Test for multi-instance applications

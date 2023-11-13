@@ -14,7 +14,7 @@ var vows = require('vows'),
  * @class ConfigTest
  */
 
-var CONFIG, MODULE_CONFIG, override;
+var CONFIG, MODULE_CONFIG, override, numberInteger, numberFloat;
 vows.describe('Test suite for node-config')
 .addBatch({
   'Library initialization': {
@@ -22,7 +22,7 @@ vows.describe('Test suite for node-config')
       // Change the configuration directory for testing
       process.env.NODE_CONFIG_DIR = __dirname + '/config';
 
-      // Hardcode $NODE_ENV=test for testing
+      // Hard-code $NODE_ENV=test for testing
       process.env.NODE_ENV='test';
 
       // Test for multi-instance applications
@@ -35,6 +35,19 @@ vows.describe('Test suite for node-config')
       // Test Environment Variable Substitution
       override = 'CUSTOM VALUE FROM JSON ENV MAPPING';
       process.env.CUSTOM_JSON_ENVIRONMENT_VAR = override;
+
+      // Test Environment variable substitution of boolean values
+      process.env.CUSTOM_BOOLEAN_TRUE_ENVIRONMENT_VAR = 'true';
+      process.env.CUSTOM_BOOLEAN_FALSE_ENVIRONMENT_VAR = 'false';
+      process.env.CUSTOM_BOOLEAN_ERROR_ENVIRONMENT_VAR = 'notProperBoolean';
+
+      // Test Environment variable substitution of numeric values
+      numberInteger = 1001;
+      numberFloat = 3.14
+      process.env.CUSTOM_NUMBER_INTEGER_ENVIRONMENT_VAR = numberInteger;
+      process.env.CUSTOM_NUMBER_FLOAT_ENVIRONMENT_VAR = numberFloat;
+      process.env.CUSTOM_NUMBER_EMPTY_ENVIRONMENT_VAR = '';
+      process.env.CUSTOM_NUMBER_STRING_ENVIRONMENT_VAR = 'String';
 
       CONFIG = requireUncached(__dirname + '/../lib/config');
 
@@ -159,7 +172,39 @@ vows.describe('Test suite for node-config')
     // NOT testing absence of `custom-environment-variables.json` because current tests don't mess with the filesystem
     'Configuration can come from an environment variable mapped in custom_environment_variables.json': function () {
       assert.equal(CONFIG.get('customEnvironmentVariables.mappedBy.json'), override);
-    }
+    },
+
+    'Environment variables specified as boolean true': function () {
+      assert.equal(CONFIG.get('customEnvironmentVariables.mappedBy.formats.booleanTrue'), true);
+    },
+
+    'Environment variables specified as boolean false': function () {
+      assert.equal(CONFIG.get('customEnvironmentVariables.mappedBy.formats.booleanFalse'), false);
+    },
+
+    'Environment variables not specified as a proper boolean value': function () {
+      assert.equal(CONFIG.get('customEnvironmentVariables.mappedBy.formats.notProperBoolean'), false);
+    },
+
+    'Environment variables specified as an integer number': function () {
+      assert.equal(CONFIG.get('customEnvironmentVariables.mappedBy.formats.numberInteger'), numberInteger);
+    },
+
+    'Environment variables specified as a floating number': function () {
+      assert.equal(CONFIG.get('customEnvironmentVariables.mappedBy.formats.numberFloat'), numberFloat);
+    },
+
+    'Environment variables specified as a number but empty string passed': function () {
+      assert.throws(function () { CONFIG.get('customEnvironmentVariables.mappedBy.formats.numberEmpty'); },
+        /Configuration property "customEnvironmentVariables.mappedBy.formats.numberEmpty" is not defined/
+      )
+    },
+
+    'Environment variables specified as a number but alphanumeric string passed': function () {
+      assert.throws(function () { CONFIG.get('customEnvironmentVariables.mappedBy.formats.numberString'); },
+        /Configuration property "customEnvironmentVariables.mappedBy.formats.numberString" is not defined/
+      )
+    },
   },
 
  'Assuring a configuration property can be hidden': {
@@ -216,9 +261,13 @@ vows.describe('Test suite for node-config')
 
   'Assuring a configuration array property can be made immutable': {
     'Correctly unable to change an immutable configuration': function() {
-      CONFIG.util.makeImmutable(CONFIG.TestModule, 'arr1');
-      CONFIG.TestModule.arr1 = ['bad value'];
-      assert.isTrue(CONFIG.TestModule.arr1[0] == 'arrValue1');
+      assert.throws(
+        function() {
+          CONFIG.util.makeImmutable(CONFIG.TestModule, 'arr1');
+          CONFIG.TestModule.arr1 = [ 'bad value' ];
+        },
+        /Can not update runtime configuration property: "arr1"\. Configuration objects are immutable unless ALLOW_CONFIG_MUTATIONS is set\./
+      )
     },
 
     'Correctly unable to add values to immutable array': function() {
@@ -347,7 +396,7 @@ vows.describe('Test suite for node-config')
       assert.deepEqual(MODULE_CONFIG.TestModule, moduleConfig);
     },
 
-    // Regression test for https://github.com/lorenwest/node-config/issues/518
+    // Regression test for https://github.com/node-config/node-config/issues/518
     'The module config did not extend itself with its own name': function(moduleConfig) {
       assert.isFalse('TestModule' in moduleConfig);
       assert.isFalse('TestModule' in MODULE_CONFIG.TestModule);
@@ -394,7 +443,7 @@ vows.describe('Test suite for node-config')
         // Change the configuration directory for testing
         process.env.NODE_CONFIG_DIR = __dirname + '/config:' + __dirname + '/x-config';
 
-        // Hardcode $NODE_ENV=test for testing
+        // Hard-code $NODE_ENV=test for testing
         process.env.NODE_ENV='test';
 
         // Test for multi-instance applications
@@ -420,7 +469,7 @@ vows.describe('Test suite for node-config')
         assert.isFunction(CONFIG.util.cloneDeep);
       }
     },
-    'Multiple config direcoties': {
+    'Multiple config directories': {
       'Verify first directory loaded': function() {
         assert.equal(CONFIG.get('Customers.dbName'), 'from_default_xml');
       },
