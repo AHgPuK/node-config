@@ -307,8 +307,7 @@ Parser.numberParser = function(filename, content) {
   return Number.isNaN(numberValue) ? undefined : numberValue;
 };
 
-var order = ['js', 'cjs', 'mjs', 'ts', 'json', 'jsonc', 'json5', 'hjson', 'toml', 'coffee', 'iced', 'yaml', 'yml', 'cson', 'properties', 'xml',
-  'boolean', 'number'];
+var order = ['json'];
 var definitions = {
   cjs: Parser.jsParser,
   coffee: Parser.coffeeParser,
@@ -316,7 +315,7 @@ var definitions = {
   hjson: Parser.hjsonParser,
   iced: Parser.icedParser,
   js: Parser.jsParser,
-  json: Parser.jsonParser,
+  json: Parser.json5Parser,
   jsonc: Parser.jsonParser,
   json5: Parser.json5Parser,
   mjs: Parser.jsParser,
